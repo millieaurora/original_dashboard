@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>밀리 오리지널 대여 현황 2026-07-08</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+         background: #f0f2f5; color: #1a1a2e; padding: 24px; }
+  .header { background: linear-gradient(135deg, #667eea, #764ba2);
+             color: white; border-radius: 16px; padding: 32px;
+             margin-bottom: 24px; box-shadow: 0 8px 32px rgba(102,126,234,0.3); }
+  .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  .header .date { font-size: 14px; opacity: 0.85; }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 16px; margin-bottom: 24px; }
+  .card-section-label { font-size: 13px; font-weight: 700; color: #555;
+                         margin-bottom: 10px; padding-left: 4px; }
+  .card { background: white; border-radius: 12px; padding: 24px;
+           box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .card .label { font-size: 12px; color: #888; margin-bottom: 8px; font-weight: 600; letter-spacing: 0.5px; }
+  .card .value { font-size: 28px; font-weight: 700; color: #1a1a2e; }
+  .card .sub { font-size: 11px; color: #aaa; margin-top: 6px; }
+  .card.blue .value { color: #667eea; }
+  .card.green .value { color: #11998e; }
+  .card.orange .value { color: #f7971e; }
+  .card.pink .value { color: #ee0979; }
+  .row-stat { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+  .row-label { font-size: 11px; color: #aaa; }
+  .row-value { font-size: 18px; font-weight: 700; }
+  .table-wrap { background: white; border-radius: 12px;
+                 box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 20px; }
+  .table-header { padding: 20px 24px; border-bottom: 1px solid #f0f0f0;
+                   font-weight: 700; font-size: 16px; color: #1a1a2e; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f8f9ff; padding: 12px 16px; text-align: center;
+        font-size: 12px; color: #666; font-weight: 600; border-bottom: 1px solid #eee; }
+  td { padding: 12px 16px; text-align: center; border-bottom: 1px solid #f5f5f5;
+        font-size: 13px; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr.inactive { opacity: 0.4; }
+  tr:hover td { background: #f8f9ff; }
+  .title-cell { text-align: left; }
+  .title-name { font-weight: 600; color: #1a1a2e; font-size: 13px; }
+  .title-author { font-size: 11px; color: #999; margin-top: 2px; }
+  .total-cell { font-size: 15px; color: #667eea; }
+  .amount-cell { color: #11998e; font-size: 12px; }
+  .monthly-cell { color: #764ba2; font-size: 13px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px;
+            background: #f0f2ff; color: #667eea; font-size: 12px; font-weight: 600; }
+  .badge.dosont { background: #fff3f0; color: #ee5a24; }
+  .badge.audio  { background: #f0fff4; color: #11998e; }
+  .badge.chatbook { background: #fff8f0; color: #f7971e; }
+  .bar-wrap { display: flex; align-items: center; gap: 8px; width: 100%; }
+  .bar { height: 8px; background: linear-gradient(90deg, #667eea, #764ba2);
+          border-radius: 4px; min-width: 2px; }
+  .bar-label { font-size: 11px; color: #aaa; white-space: nowrap; }
+  .save-status { background: white; border-radius: 12px; padding: 20px 24px;
+                  box-shadow: 0 2px 12px rgba(0,0,0,0.06); font-size: 13px; margin-bottom: 20px; }
+  .save-status h3 { font-size: 14px; margin-bottom: 12px; color: #444; }
+  .status-row { margin-bottom: 6px; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 20px;
+          font-size: 11px; font-weight: 600; margin-right: 4px; }
+  .tag.s { background: #e8f5e9; color: #2e7d32; }
+  .tag.n { background: #fff8e1; color: #f57f17; }
+  .tag.f { background: #fce4ec; color: #c62828; }
+  .sort-btns { display: flex; gap: 8px; }
+  .sort-btn { background: #f0f2ff; border: none; color: #667eea; padding: 6px 14px;
+               border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer;
+               transition: all 0.2s; }
+  .sort-btn:hover { background: #667eea; color: white; }
+  .sort-btn.active { background: #667eea; color: white; }
+  .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #bbb; }
+  .t5wrap { display: flex; gap: 16px; padding: 24px; }
+  .t5card { flex: 1; background: #f8f9ff; border-radius: 14px; padding: 20px 14px;
+             text-align: center; position: relative; border: 2px solid #eef0ff;
+             display: flex; flex-direction: column; align-items: center; gap: 6px;
+             transition: transform 0.2s, box-shadow 0.2s;
+             text-decoration: none; color: inherit; cursor: pointer; }
+  .t5card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(102,126,234,0.15); border-color: #667eea; }
+  .t5badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+              color: white; font-size: 11px; font-weight: 800; padding: 4px 14px;
+              border-radius: 20px; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .t5emoji { font-size: 28px; margin-top: 10px; }
+  .t5link { color: inherit; text-decoration: none; }
+  .t5link:hover { color: #667eea; text-decoration: underline; }
+  .t5name { font-size: 12px; font-weight: 700; color: #1a1a2e; line-height: 1.4;
+             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+             overflow: hidden; width: 100%; }
+  .t5auth { font-size: 11px; color: #999; }
+  .t5line { width: 100%; height: 1px; background: #e8eaf6; margin: 4px 0; }
+  .t5row { display: flex; justify-content: space-between; width: 100%; }
+  .t5lbl { font-size: 11px; color: #aaa; }
+  .t5val { font-size: 12px; font-weight: 700; color: #667eea; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📚 밀리 오리지널 일별 대여 현황</h1>
+  <div class="date">기준일: 2026-07-08 (7월 8일차 / 31일) &nbsp;|&nbsp; 생성: 2026-07-09 15:00</div>
+</div>
+
+<div class="card-section-label">📅 전일 기준</div>
+<div class="cards">
+  <div class="card blue">
+    <div class="label">🏷️ 활성 타이틀</div>
+    <div class="value">8<span style="font-size:16px;color:#aaa"> / 8</span></div>
+    <div class="sub">대여 발생 타이틀</div>
+  </div>
+  <div class="card green">
+    <div class="label">📖 전일 대여수</div>
+    <div class="value">1,357</div>
+    <div class="sub">건</div>
+  </div>
+  <div class="card orange">
+    <div class="label">💰 전일 발생 금액</div>
+    <div class="value">313,935</div>
+    <div class="sub">원</div>
+  </div>
+  
+  <div class="card" style="border-left: 4px solid #667eea;">
+    <div class="label">🎯 전일 달성률</div>
+    <div class="value" style="color:#667eea">85%</div>
+    <div class="sub">전일 1,357 / 일별목표 1,596</div>
+  </div>
+</div>
+
+<div class="card-section-label">📊 당월 누적 기준 (7월 1일~8일)</div>
+<div class="cards">
+  <div class="card blue">
+    <div class="label">🏷️ 활성 타이틀</div>
+    <div class="value">8<span style="font-size:16px;color:#aaa"> / 8</span></div>
+    <div class="sub">대여 발생 타이틀</div>
+  </div>
+  <div class="card pink">
+    <div class="label">📖 누적 대여수</div>
+    <div class="value">11,514</div>
+    <div class="sub">건</div>
+  </div>
+  <div class="card orange">
+    <div class="label">💰 누적 발생 금액</div>
+    <div class="value">3,284,520</div>
+    <div class="sub">원</div>
+  </div>
+  
+  <div class="card" style="border-left: 4px solid #667eea;">
+    <div class="label">🎯 누적 달성률</div>
+    <div class="value" style="color:#667eea">90%</div>
+    <div class="sub">누적 11,514 / 기간목표 12,771 / 월목표 49,487</div>
+  </div>
+</div>
+
+<div class="table-wrap" style="margin-bottom:20px">
+  <div class="table-header">🏆 Best Top 5</div>
+  <div class="t5wrap"><a href="https://www.millie.co.kr/v4/book/eae605a3e21b4be9" target="_blank" class="t5card">
+  <div class="t5badge" style="background:#f7c948">1위</div>
+  <div class="t5emoji">🥇</div>
+  <div class="t5name">어느 멋진 도망</div>
+  <div class="t5auth">나상천</div>
+  <div class="t5line"></div>
+  <div class="t5row"><span class="t5lbl">당일</span><span class="t5val">710건</span></div>
+  <div class="t5row"><span class="t5lbl">금액</span><span class="t5val" style="font-size:11px">107,695원</span></div>
+</a><a href="https://www.millie.co.kr/v4/book/b4246dff9d6c449a" target="_blank" class="t5card">
+  <div class="t5badge" style="background:#9e9e9e">2위</div>
+  <div class="t5emoji">🥈</div>
+  <div class="t5name">낙하</div>
+  <div class="t5auth">이희영</div>
+  <div class="t5line"></div>
+  <div class="t5row"><span class="t5lbl">당일</span><span class="t5val">450건</span></div>
+  <div class="t5row"><span class="t5lbl">금액</span><span class="t5val" style="font-size:11px">142,800원</span></div>
+</a><a href="https://www.millie.co.kr/v4/book/e82e288ca17e438e" target="_blank" class="t5card">
+  <div class="t5badge" style="background:#cd7f32">3위</div>
+  <div class="t5emoji">🥉</div>
+  <div class="t5name">저 재밌는 거 혼자 아는 사람 아닙니다</div>
+  <div class="t5auth">신시연</div>
+  <div class="t5line"></div>
+  <div class="t5row"><span class="t5lbl">당일</span><span class="t5val">73건</span></div>
+  <div class="t5row"><span class="t5lbl">금액</span><span class="t5val" style="font-size:11px">25,200원</span></div>
+</a><a href="https://www.millie.co.kr/v4/book/607ec4fcef4f431b" target="_blank" class="t5card">
+  <div class="t5badge" style="background:#667eea">4위</div>
+  <div class="t5emoji">4️⃣</div>
+  <div class="t5name">오래된 세계의 농담</div>
+  <div class="t5auth">이다혜</div>
+  <div class="t5line"></div>
+  <div class="t5row"><span class="t5lbl">당일</span><span class="t5val">64건</span></div>
+  <div class="t5row"><span class="t5lbl">금액</span><span class="t5val" style="font-size:11px">17,640원</span></div>
+</a><a href="https://www.millie.co.kr/v4/book/ddb548774b8640fd" target="_blank" class="t5card">
+  <div class="t5badge" style="background:#764ba2">5위</div>
+  <div class="t5emoji">5️⃣</div>
+  <div class="t5name">쪼개기 법칙</div>
+  <div class="t5auth">허규형</div>
+  <div class="t5line"></div>
+  <div class="t5row"><span class="t5lbl">당일</span><span class="t5val">42건</span></div>
+  <div class="t5row"><span class="t5lbl">금액</span><span class="t5val" style="font-size:11px">15,840원</span></div>
+</a></div>
+  <div style="padding: 8px 24px 16px; font-size: 11px; color: #bbb; text-align: right;">※ 전일 기준입니다</div>
+</div>
+
+<div class="table-wrap" style="margin-bottom:20px">
+  <div class="table-header">🎯 월목표 달성 진행률</div>
+  <div style="padding:20px 24px">
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:8px">
+      <span>0</span>
+      <span>기간목표 12,771 (26%)</span>
+      <span>월목표 49,487</span>
+    </div>
+    <div style="position:relative;height:28px;background:#f0f2f5;border-radius:14px;overflow:hidden">
+      <div style="position:absolute;left:26%;top:0;height:100%;width:2px;background:#667eea;z-index:2"></div>
+      <div style="position:absolute;left:0;top:0;height:100%;width:23%;
+                  background:linear-gradient(90deg,#11998e,#38ef7d);border-radius:14px;
+                  transition:width 0.5s;display:flex;align-items:center;justify-content:flex-end;padding-right:8px">
+        <span style="color:white;font-size:11px;font-weight:700;white-space:nowrap">11,514 (23%)</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:#aaa">
+      <span>🟢 누적 11,514건</span>
+      <span>🔵 기간목표 12,771건</span>
+      <span>⬜ 월목표 49,487건</span>
+      <span>📊 일평균 1,439건/일</span>
+    </div>
+  </div>
+</div>
+
+
+<div class="table-wrap">
+  <div class="table-header">🎯 월별 목표 달성 현황 (7월 8일차 기준)
+    <span style="font-size:11px;color:#aaa;font-weight:400;margin-left:8px">헤더 클릭으로 정렬 &nbsp;|&nbsp;
+      <span style="color:#ee0979">● 0~50%</span> &nbsp;
+      <span style="color:#f7971e">● 51~70%</span> &nbsp;
+      <span style="color:#667eea">● 71~99%</span> &nbsp;
+      <span style="color:#11998e">● 100%+</span>
+    </span>
+  </div>
+  <table id="achieve-table">
+    <thead>
+      <tr>
+        <th style="text-align:left;cursor:pointer" onclick="sortTable(0,'str')">도서명 / 작가 ↕</th>
+        <th style="cursor:pointer" onclick="sortTable(1,'num')">당월누적 ↕</th>
+        <th style="cursor:pointer" onclick="sortTable(2,'num')">기간목표 ↕</th>
+        <th style="cursor:pointer" onclick="sortTable(3,'num')">월목표 ↕</th>
+        <th style="cursor:pointer" onclick="sortTable(4,'rate')">달성률 ↕</th>
+        <th style="min-width:150px;cursor:pointer" onclick="sortTable(4,'rate')">달성 현황 ↕</th>
+      </tr>
+    </thead>
+    <tbody id="achieve-tbody">
+      
+        <tr>
+          <td class="title-cell">
+            <div class="title-name">글이 안 써지세요? 저도요</div>
+            <div class="title-author">정지음</div>
+          </td>
+          <td style="color:#764ba2;font-weight:600">302</td>
+          <td style="color:#555">127</td>
+          <td style="color:#aaa">491</td>
+          <td><span style="background:#11998e20;color:#11998e;padding:2px 8px;border-radius:12px;font-weight:700;font-size:12px">238%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:100%;background:linear-gradient(90deg,#11998e,#11998e99)"></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="title-cell">
+            <div class="title-name">낙하</div>
+            <div class="title-author">이희영</div>
+          </td>
+          <td style="color:#764ba2;font-weight:600">4,491</td>
+          <td style="color:#555">3,133</td>
+          <td style="color:#aaa">12,139</td>
+          <td><span style="background:#11998e20;color:#11998e;padding:2px 8px;border-radius:12px;font-weight:700;font-size:12px">143%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:100%;background:linear-gradient(90deg,#11998e,#11998e99)"></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="title-cell">
+            <div class="title-name">널 구원할 시간 4분 33초</div>
+            <div class="title-author">신원에이전시</div>
+          </td>
+          <td style="color:#764ba2;font-weight:600">42</td>
+          <td style="color:#555">141</td>
+          <td style="color:#aaa">546</td>
+          <td><span style="background:#ee097920;color:#ee0979;padding:2px 8px;border-radius:12px;font-weight:700;font-size:12px">30%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:30%;background:linear-gradient(90deg,#ee0979,#ee097999)"></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="title-cell">
+            <div class="title-name">디스킬 제너레이션</div>
+            <div class="title-author">김재인</div>
+          </td>
+          <td style="color:#764ba2;font-weight:600">161</td>
+          <td style="color:#555">310</td>
+          <td style="color:#aaa">1,203</td>
+          <td><span style="background:#f7971e20;color:#f7971e;padding:2px 8px;border-radius:12px;font-weight:700;font-size:12px">52%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:52%;background:linear-gradient(90deg,#f7971e,#f7971e99)"></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="title-cell">
+            <div class="title-name">어느 멋진 도망</div>
+            <div class="title-author">나상천</div>
+          </td>
+          <td style="color:#764ba2;font-weight:600">2,736</td>
+          <td style="color:#555">391</td>
+          <td style="color:#aaa">1,515</td>
+          <td><span style="background:#11998e20;color:#11998e;padding:2px 8px;border-radius:12px;font-weight:700;font-size:12px">700%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:100%;background:linear-gradient(90deg,#11998e,#11998e99)"></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="title-cell">
+            <div class="title-name">오래된 세계의 농담</div>
+            <div class="title-author">이다혜</div>
+          </td>
+          <td style="color:#764ba2;font-weight:600">847</td>
+          <td style="color:#555">175</td>
+          <td style="color:#aaa">680</td>
+          <td><span style="background:#11998e20;color:#11998e;padding:2px 8px;border-radius:12px;font-weight:700;font-size:12px">484%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:100%;background:linear-gradient(90deg,#11998e,#11998e99)"></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="title-cell">
+            <div class="title-name">저 재밌는 거 혼자 아는 사람 아닙니다</div>
+            <div class="title-author">신시연</div>
+          </td>
+          <td style="color:#764ba2;font-weight:600">2,139</td>
+          <td style="color:#555">2,791</td>
+          <td style="color:#aaa">10,815</td>
+          <td><span style="background:#667eea20;color:#667eea;padding:2px 8px;border-radius:12px;font-weight:700;font-size:12px">77%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:77%;background:linear-gradient(90deg,#667eea,#667eea99)"></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="title-cell">
+            <div class="title-name">쪼개기 법칙</div>
+            <div class="title-author">허규형</div>
+          </td>
+          <td style="color:#764ba2;font-weight:600">684</td>
+          <td style="color:#555">540</td>
+          <td style="color:#aaa">2,093</td>
+          <td><span style="background:#11998e20;color:#11998e;padding:2px 8px;border-radius:12px;font-weight:700;font-size:12px">127%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:100%;background:linear-gradient(90deg,#11998e,#11998e99)"></div>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+</div>
+<script>
+var sortDir = {};
+function sortTable(colIdx, type) {
+  var tbody = document.getElementById('achieve-tbody');
+  var rows = Array.from(tbody.querySelectorAll('tr'));
+  var dir = sortDir[colIdx] === 'asc' ? 'desc' : 'asc';
+  sortDir[colIdx] = dir;
+
+  rows.sort(function(a, b) {
+    var tdA = a.querySelectorAll('td')[colIdx];
+    var tdB = b.querySelectorAll('td')[colIdx];
+    if (!tdA || !tdB) return 0;
+
+    if (type === 'str') {
+      var na = tdA.querySelector('.title-name')?.innerText || tdA.innerText;
+      var nb = tdB.querySelector('.title-name')?.innerText || tdB.innerText;
+      return dir === 'asc' ? na.localeCompare(nb, 'ko') : nb.localeCompare(na, 'ko');
+    } else if (type === 'num') {
+      var va = parseInt(tdA.innerText.replace(/,/g,'').replace(/-/g,'0')) || 0;
+      var vb = parseInt(tdB.innerText.replace(/,/g,'').replace(/-/g,'0')) || 0;
+      return dir === 'asc' ? va - vb : vb - va;
+    } else if (type === 'rate') {
+      var ra = parseInt(tdA.querySelector('span')?.innerText || 0);
+      var rb = parseInt(tdB.querySelector('span')?.innerText || 0);
+      return dir === 'asc' ? ra - rb : rb - ra;
+    }
+    return 0;
+  });
+  rows.forEach(function(r) { tbody.appendChild(r); });
+}
+</script>
+
+
+<div class="table-wrap">
+  <div class="table-header">📊 전체 타이틀 대여 현황 (대여 많은 순)
+    <span style="font-size:11px;color:#aaa;font-weight:400;margin-left:8px">헤더 클릭으로 정렬</span>
+  </div>
+  <table id="main-table">
+    <thead>
+      <tr>
+        <th style="cursor:pointer" onclick="sortMain(0,'num')"># ↕</th>
+        <th style="text-align:left;cursor:pointer" onclick="sortMain(1,'str')">도서명 / 작가 ↕</th>
+        <th style="cursor:pointer" onclick="sortMain(2,'num')">전자책 ↕</th>
+        <th style="cursor:pointer" onclick="sortMain(3,'num')">도슨트 ↕</th>
+        <th style="cursor:pointer" onclick="sortMain(4,'num')">오디오 ↕</th>
+        <th style="cursor:pointer" onclick="sortMain(5,'num')">챗북 ↕</th>
+        <th style="cursor:pointer" onclick="sortMain(6,'num')">당일합계 ↕</th>
+        <th style="cursor:pointer" onclick="sortMain(7,'num')">발생금액 ↕</th>
+        <th style="cursor:pointer" onclick="sortMain(8,'num')">당월누적 ↕</th>
+        <th style="min-width:100px;cursor:pointer" onclick="sortMain(9,'num')">당일비율 ↕</th>
+      </tr>
+    </thead>
+    <tbody id="main-tbody">
+      
+        <tr class="active">
+            <td>1</td>
+            <td class="title-cell">
+                <div class="title-name"><a href="https://www.millie.co.kr/v4/book/eae605a3e21b4be9" target="_blank" class="t5link">어느 멋진 도망 <span style="font-size:10px">↗</span></a></div>
+                <div class="title-author">나상천</div>
+            </td>
+            <td><span class="badge">99</span></td>
+            <td><span class="badge dosont">0</span></td>
+            <td><span class="badge audio">611</span></td>
+            <td><span class="badge chatbook">0</span></td>
+            <td class="total-cell"><strong>710</strong></td>
+            <td class="amount-cell">107,695원</td>
+            <td class="monthly-cell"><strong>2,736</strong></td>
+            <td>
+                <div class="bar-wrap">
+                    <div class="bar" style="width:52%"></div>
+                    <span class="bar-label">52%</span>
+                </div>
+            </td>
+        </tr>
+        <tr class="active">
+            <td>2</td>
+            <td class="title-cell">
+                <div class="title-name"><a href="https://www.millie.co.kr/v4/book/b4246dff9d6c449a" target="_blank" class="t5link">낙하 <span style="font-size:10px">↗</span></a></div>
+                <div class="title-author">이희영</div>
+            </td>
+            <td><span class="badge">450</span></td>
+            <td><span class="badge dosont">0</span></td>
+            <td><span class="badge audio">0</span></td>
+            <td><span class="badge chatbook">0</span></td>
+            <td class="total-cell"><strong>450</strong></td>
+            <td class="amount-cell">142,800원</td>
+            <td class="monthly-cell"><strong>4,491</strong></td>
+            <td>
+                <div class="bar-wrap">
+                    <div class="bar" style="width:33%"></div>
+                    <span class="bar-label">33%</span>
+                </div>
+            </td>
+        </tr>
+        <tr class="active">
+            <td>3</td>
+            <td class="title-cell">
+                <div class="title-name"><a href="https://www.millie.co.kr/v4/book/e82e288ca17e438e" target="_blank" class="t5link">저 재밌는 거 혼자 아는 사람 아닙니다 <span style="font-size:10px">↗</span></a></div>
+                <div class="title-author">신시연</div>
+            </td>
+            <td><span class="badge">73</span></td>
+            <td><span class="badge dosont">0</span></td>
+            <td><span class="badge audio">0</span></td>
+            <td><span class="badge chatbook">0</span></td>
+            <td class="total-cell"><strong>73</strong></td>
+            <td class="amount-cell">25,200원</td>
+            <td class="monthly-cell"><strong>2,139</strong></td>
+            <td>
+                <div class="bar-wrap">
+                    <div class="bar" style="width:5%"></div>
+                    <span class="bar-label">5%</span>
+                </div>
+            </td>
+        </tr>
+        <tr class="active">
+            <td>4</td>
+            <td class="title-cell">
+                <div class="title-name"><a href="https://www.millie.co.kr/v4/book/607ec4fcef4f431b" target="_blank" class="t5link">오래된 세계의 농담 <span style="font-size:10px">↗</span></a></div>
+                <div class="title-author">이다혜</div>
+            </td>
+            <td><span class="badge">43</span></td>
+            <td><span class="badge dosont">0</span></td>
+            <td><span class="badge audio">21</span></td>
+            <td><span class="badge chatbook">0</span></td>
+            <td class="total-cell"><strong>64</strong></td>
+            <td class="amount-cell">17,640원</td>
+            <td class="monthly-cell"><strong>847</strong></td>
+            <td>
+                <div class="bar-wrap">
+                    <div class="bar" style="width:4%"></div>
+                    <span class="bar-label">4%</span>
+                </div>
+            </td>
+        </tr>
+        <tr class="active">
+            <td>5</td>
+            <td class="title-cell">
+                <div class="title-name"><a href="https://www.millie.co.kr/v4/book/ddb548774b8640fd" target="_blank" class="t5link">쪼개기 법칙 <span style="font-size:10px">↗</span></a></div>
+                <div class="title-author">허규형</div>
+            </td>
+            <td><span class="badge">42</span></td>
+            <td><span class="badge dosont">0</span></td>
+            <td><span class="badge audio">0</span></td>
+            <td><span class="badge chatbook">0</span></td>
+            <td class="total-cell"><strong>42</strong></td>
+            <td class="amount-cell">15,840원</td>
+            <td class="monthly-cell"><strong>684</strong></td>
+            <td>
+                <div class="bar-wrap">
+                    <div class="bar" style="width:3%"></div>
+                    <span class="bar-label">3%</span>
+                </div>
+            </td>
+        </tr>
+        <tr class="active">
+            <td>6</td>
+            <td class="title-cell">
+                <div class="title-name"><a href="https://www.millie.co.kr/v4/book/2d928ca6db2c4f06" target="_blank" class="t5link">디스킬 제너레이션 <span style="font-size:10px">↗</span></a></div>
+                <div class="title-author">김재인</div>
+            </td>
+            <td><span class="badge">9</span></td>
+            <td><span class="badge dosont">0</span></td>
+            <td><span class="badge audio">0</span></td>
+            <td><span class="badge chatbook">0</span></td>
+            <td class="total-cell"><strong>9</strong></td>
+            <td class="amount-cell">0원</td>
+            <td class="monthly-cell"><strong>161</strong></td>
+            <td>
+                <div class="bar-wrap">
+                    <div class="bar" style="width:0%"></div>
+                    <span class="bar-label">0%</span>
+                </div>
+            </td>
+        </tr>
+        <tr class="active">
+            <td>7</td>
+            <td class="title-cell">
+                <div class="title-name"><a href="https://www.millie.co.kr/v4/book/5ac6f1a5daf74a32" target="_blank" class="t5link">글이 안 써지세요? 저도요 <span style="font-size:10px">↗</span></a></div>
+                <div class="title-author">정지음</div>
+            </td>
+            <td><span class="badge">6</span></td>
+            <td><span class="badge dosont">0</span></td>
+            <td><span class="badge audio">0</span></td>
+            <td><span class="badge chatbook">0</span></td>
+            <td class="total-cell"><strong>6</strong></td>
+            <td class="amount-cell">4,760원</td>
+            <td class="monthly-cell"><strong>302</strong></td>
+            <td>
+                <div class="bar-wrap">
+                    <div class="bar" style="width:0%"></div>
+                    <span class="bar-label">0%</span>
+                </div>
+            </td>
+        </tr>
+        <tr class="active">
+            <td>8</td>
+            <td class="title-cell">
+                <div class="title-name"><a href="https://www.millie.co.kr/v4/book/cd544c10f4684b0a" target="_blank" class="t5link">널 구원할 시간 4분 33초 <span style="font-size:10px">↗</span></a></div>
+                <div class="title-author">신원에이전시</div>
+            </td>
+            <td><span class="badge">3</span></td>
+            <td><span class="badge dosont">0</span></td>
+            <td><span class="badge audio">0</span></td>
+            <td><span class="badge chatbook">0</span></td>
+            <td class="total-cell"><strong>3</strong></td>
+            <td class="amount-cell">0원</td>
+            <td class="monthly-cell"><strong>42</strong></td>
+            <td>
+                <div class="bar-wrap">
+                    <div class="bar" style="width:0%"></div>
+                    <span class="bar-label">0%</span>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+var mainSortDir = {};
+function sortMain(colIdx, type) {
+  var tbody = document.getElementById('main-tbody');
+  var rows = Array.from(tbody.querySelectorAll('tr'));
+  var dir = mainSortDir[colIdx] === 'asc' ? 'desc' : 'asc';
+  mainSortDir[colIdx] = dir;
+
+  rows.sort(function(a, b) {
+    var tdA = a.querySelectorAll('td')[colIdx];
+    var tdB = b.querySelectorAll('td')[colIdx];
+    if (!tdA || !tdB) return 0;
+
+    if (type === 'str') {
+      var na = tdA.querySelector('.title-name')?.innerText || tdA.innerText;
+      var nb = tdB.querySelector('.title-name')?.innerText || tdB.innerText;
+      return dir === 'asc' ? na.localeCompare(nb, 'ko') : nb.localeCompare(na, 'ko');
+    } else {
+      var va = parseInt(tdA.innerText.replace(/[^0-9]/g,'')) || 0;
+      var vb = parseInt(tdB.innerText.replace(/[^0-9]/g,'')) || 0;
+      return dir === 'asc' ? va - vb : vb - va;
+    }
+  });
+
+  // 순번 다시 매기기
+  rows.forEach(function(r, i) {
+    r.querySelectorAll('td')[0].innerText = i + 1;
+    tbody.appendChild(r);
+  });
+}
+</script>
+
+<div class="footer">🤖 밀리 오리지널 자동 집계 시스템</div>
+</body>
+</html>
